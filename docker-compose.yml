@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - fra_network
+  
+  # PostgreSQL for production database (optional)
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=fra_fusion
+      - POSTGRES_USER=fra_user
+      - POSTGRES_PASSWORD=fra_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - fra_network
+  
+  # FRA AI Fusion System - Development
+  fra-dev:
+    build:
+      context: .
+      target: development
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Full prototype:/app
+      - ./scripts:/app/scripts
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./outputs:/app/outputs
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_TOKEN=${HF_TOKEN}
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://fra_user:fra_password@postgres:5432/fra_fusion
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - fra_network
+    command: ["--serve"]
+  
+  # FRA AI Fusion System - Production
+  fra-prod:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    ports:
+      - "80:8000"
+    volumes:
+      - fra_data:/app/data
+      - fra_models:/app/models
+      - fra_outputs:/app/outputs
+      - fra_logs:/app/logs
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_TOKEN=${HF_TOKEN}
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://fra_user:fra_password@postgres:5432/fra_fusion
+      - NODE_ENV=production
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - fra_network
+    profiles:
+      - production
+    command: ["--serve"]
+  
+  # Jupyter notebook for development (optional)
+  jupyter:
+    build:
+      context: .
+      target: development
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./Full prototype:/app
+      - ./scripts:/app/scripts
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./notebooks:/app/notebooks
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_TOKEN=${HF_TOKEN}
+    networks:
+      - fra_network
+    profiles:
+      - jupyter
+    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
+
+volumes:
+  redis_data:
+  postgres_data:
+  fra_data:
+  fra_models:
+  fra_outputs:
+  fra_logs:
+
+networks:
+  fra_network:
+    driver: bridge

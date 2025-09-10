@@ -1,0 +1,134 @@
+{
+  "FRA": [
+    {
+      "name": "AI4Bharat  IndicNLP  Corpus (tokenized multilingual Indic text)",
+      "description": "GitHub  (main repo, no direct full archive release; download by cloning repo and following scripts to acquire corpora): https://github.com/AI4Bharat/indicnlp_corpus IndicNLP  resources page with dataset references: https://indicnlp.ai4bharat.org/pages/indicnlp-corpus/ IndicNER  Dataset (multilingual NER dataset for 11 Indic languages): Hugging Face dataset page with data files, usage instructions, and download: https://huggingface.co/datasets/ai4bharat/IndicNER Samanantar  Indic-English Parallel Corpus (49.7 million sentence pairs): Hugging Face dataset page for download: https://huggingface.co/datasets/ai4bharat/samanantar Government  eGazette : Access and download Gazette notifications (no direct bulk dataset, documents downloadable individually or via API): https://egazette.gov.in Digital India Land Records Modernization Programme (DILRMP): Dataset page for guidelines and data (no direct bulk link, available by official request or portals): https://data.gov.in/dataset-group-name/Digital%20India%20Land%20Records%20Modernization%20Programme%20DILRMP PM-KISAN Scheme Data: Open Government Data portal listing PM-KISAN datasets (some direct downloads available): https://www.data.gov.in/keywords/pm-kisan Jal   Jeevan  Mission Data: Official site with reports and data references (data download limited, mostly reports and dashboards): https://jaljeevanmission.gov.in MGNREGA Open Data: Public Data Portal with downloadable reports and datasets: https://mnregaweb4.nic.in/netnrega/dynamic2/dynamicreport_new4.aspx NLTK Corpora: Download via Python NLTK library: https://www.nltk.org/data.html",
+      "urls": [
+        "https://github.com/AI4Bharat/indicnlp_corpus",
+        "https://indicnlp.ai4bharat.org/pages/indicnlp-corpus/",
+        "https://huggingface.co/datasets/ai4bharat/IndicNER",
+        "https://huggingface.co/datasets/ai4bharat/samanantar",
+        "https://egazette.gov.in",
+        "https://data.gov.in/dataset-group-name/Digital%20India%20Land%20Records%20Modernization%20Programme%20DILRMP",
+        "https://www.data.gov.in/keywords/pm-kisan",
+        "https://jaljeevanmission.gov.in",
+        "https://mnregaweb4.nic.in/netnrega/dynamic2/dynamicreport_new4.aspx",
+        "https://www.nltk.org/data.html"
+      ]
+    }
+  ],
+  "OCR_Datasets": [
+    {
+      "name": "ICDAR OCR Datasets",
+      "description": "ICDAR 2019 MLT (Multi-Lingual Text) OCR Dataset (14.47 GB, images + annotations): Download page:  https://rrc.cvc.uab.es/?ch=15 Kaggle  mirror:  https://www.kaggle.com/datasets/zubairalibhutto/mlt-19-ocr-dataset ICDAR 2019 Post-OCR Text Correction Dataset ( approx  4.8 GB for Finnish  Fraktur , others vary): Zenodo  link:  https://zenodo.org/records/3515403 ICDAR 2021 Datasets (various, organized by challenge specifics): General download portal:  https://tc11.cvc.uab.es/datasets/publ/24 IIIT 5K-Word Dataset: Official site with dataset and annotations: http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html Direct dataset page (TC-11 site): https://tc11.cvc.uab.es/datasets/IIIT%205K-Word_1 Google Research OCR Dataset ( HierText  with word, line, paragraph annotations): GitHub  repository with instructions and download command: https://github.com/google-research-datasets/hiertext Download images hosted on AWS S3 (requires AWS CLI): text aws  s3 --no-sign-request  cp  s3://open-images-dataset/ocr/train.tgz . aws  s3 --no-sign-request  cp  s3://open-images-dataset/ocr/validation.tgz . aws  s3 --no-sign-request  cp  s3://open-images-dataset/ocr/test.tgz . Decompress the tar files after downloading. UW English Document Image Database: Detailed description and some access details in this manual: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=04746c4c5e546b818de1a6ad351ed0055f1d77c9 Public digital collections at UW Libraries (may require specific access or scraping/documented download): https://content.lib.washington.edu",
+      "urls": [
+        "https://rrc.cvc.uab.es/?ch=15",
+        "https://www.kaggle.com/datasets/zubairalibhutto/mlt-19-ocr-dataset",
+        "https://zenodo.org/records/3515403",
+        "https://tc11.cvc.uab.es/datasets/publ/24",
+        "http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html",
+        "https://tc11.cvc.uab.es/datasets/IIIT%205K-Word_1",
+        "https://github.com/google-research-datasets/hiertext",
+        "https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=04746c4c5e546b818de1a6ad351ed0055f1d77c9",
+        "https://content.lib.washington.edu"
+      ]
+    }
+  ],
+  "Graph_Databases": [
+    {
+      "name": "Neo4j Sandbox Datasets",
+      "description": "Neo4j Sandbox provides an online environment with built-in datasets; direct download of raw files is typically from their  GitHub  example repositories. Example datasets and graph dumps are available here for direct download: https://github.com/neo4j-graph-examples To work with Neo4j Sandbox datasets interactively:  https://neo4j.com/sandbox/ Stanford SNAP Datasets: SNAP social networks datasets including Facebook, Google+, Twitter, and other social circles: https://snap.stanford.edu/data/egonets-Facebook.html  (direct download of Facebook social circles dataset and others) General page for SNAP datasets with download links: https://snap.stanford.edu/data/ KONECT Network Datasets: KONECT provides datasets across multiple domains, but India-specific governance/socio-economic data downloads are not commonly listed. General KONECT datasets access (download links for various networks): http://konect.cc/networks/ You may need to browse to find network types relevant to governance and socio-economics and download in CSV/ GraphML  formats. Open Government Data Platform India (OGD India): Comprehensive source for Indian government data including socio-economic, governance, policy datasets. Use this portal to search and download datasets in machine-readable formats: https://data.gov.in Direct dataset browsing and download page: https://services.india.gov.in/service/detail/browse-and-download-datasets-from-open-government-data-platform-ogd-india Additional: National Data and Analytics Platform (NDAP) India also provides easy dataset downloads of government data: https://ndap.niti.gov.in",
+      "urls": [
+        "https://github.com/neo4j-graph-examples",
+        "https://neo4j.com/sandbox/",
+        "https://snap.stanford.edu/data/egonets-Facebook.html",
+        "https://snap.stanford.edu/data/",
+        "http://konect.cc/networks/",
+        "https://data.gov.in",
+        "https://services.india.gov.in/service/detail/browse-and-download-datasets-from-open-government-data-platform-ogd-india",
+        "https://ndap.niti.gov.in"
+      ]
+    }
+  ],
+  "Business_and_Rules_Engines(DROOLS)": [
+    {
+      "name": "decision_data / Indian Liver Patient Dataset (ILPD) from UCI Machine Learning Repository",
+      "description": "Download CSV:  https://archive.ics.uci.edu/ml/machine-learning-databases/00325/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv UCI Dataset page:  https://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset) Kaggle  mirror with download:  https://www.kaggle.com/datasets/uciml/indian-liver-patient-records policy_data / World Bank India Governance and Economic Data: Worldwide Governance Indicators (filter for India country data):  https://databank.worldbank.org/source/worldwide-governance-indicators World Development Indicators (filter by India):  https://databank.worldbank.org/source/world-development-indicators India Data Overview:  https://data360.worldbank.org/en/country/IND OECD India Economic and Policy Data: OECD India Economic Snapshot and related datasets:  https://www.oecd.org/en/countries/india.html OECD Data Explorer (search for India and policy/governance datasets):  https://data-explorer.oecd.org simulation_data / Use World Bank and OECD time series data filtered for India from above portals for simulation scenarios. UCI datasets with India-specific transactional data are limited; ILPD is primary example here. metadata/ Metadata and documentation are available on each dataset page linked above and can be downloaded as supplementary files or scraped directly from their official pages.",
+      "urls": [
+        "https://archive.ics.uci.edu/ml/machine-learning-databases/00325/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv",
+        "https://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset)",
+        "https://www.kaggle.com/datasets/uciml/indian-liver-patient-records",
+        "https://databank.worldbank.org/source/worldwide-governance-indicators",
+        "https://databank.worldbank.org/source/world-development-indicators",
+        "https://data360.worldbank.org/en/country/IND",
+        "https://www.oecd.org/en/countries/india.html",
+        "https://data-explorer.oecd.org"
+      ]
+    }
+  ],
+  "Geospatial_Tools_and_Databases": [
+    {
+      "name": "base_layers / Administrative Boundaries (Country/State/District/Settlement)",
+      "description": "OpenStreetMap  (OSM-Boundaries):  https://osm-boundaries.com/map Geofabrik  OSM  Shapefiles :  https://download.geofabrik.de/  (select India/Asia, roads, boundaries, settlements) GADM Global Boundaries:  https://gadm.org/download_country_v4.html  (global, also state/district for India) Natural Earth Admin Boundaries:  https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-1-states-provinces/  ,  https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-boundary-lines/ Roads, Rivers, Settlements: OSM main data:  https://www.openstreetmap.org  (Export tool or use  Geofabrik  for  Shapefiles ) Natural Earth Rivers, Urban Areas:  https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-rivers-lake-centerlines/ satellite_imagery / USGS Earth Explorer (Landsat, MODIS, others): https://earthexplorer.usgs.gov/  (free login required, select AOI and sensor, use  GeoTIFF  downloads) Sentinel-2/Copernicus: Copernicus Data Space Ecosystem:  https://dataspace.copernicus.eu/  (Sentinel, Level-2A, select tile and area, free login) Google Earth Engine public datasets  can be browsed at:  https://developers.google.com/earth-engine/datasets/tags/landcover  (download via Export) land_use_cover / ESA  WorldCover  2021 (10 m): ESA  WorldCover  Portal:  https://worldcover2021.esa.int/  (select area to download,  GeoTIFF , EPSG:4326) Zenodo  ESA  WorldCover :  https://zenodo.org/records/7254221  (entire world or by tile) India-specific LULC classified  rasters : ORNL DAAC Decadal LULC India:  https://daac.ornl.gov/VEGETATION/guides/Decadal_LULC_India.html  (100m,  GeoTIFF , several decades) fra_layers / No universal national download – consult state/NGO portals or digitized collections: Open spatial data India (FRA, villages):  https://igismap.com/download-india-administrative-boundary-shapefiles-states-districts-sub-districts-pincodes-constituencies/  (requires login) Use  https://data.gov.in  or state government GIS portals for specific FRA or community asset datasets. socio_economic / India Socio-economic, Census/Village Data: Census India Open Data:  https://censusindia.gov.in/census.website/data/census-tables  (download CSV; link to spatial units) [not directly cited, but standard source] India WRIS for water resource/village mapping:  https://indiawris.gov.in/wiki/doku.php?id=river_basins Data.gov.in for rural schemes, water, assets:  https://data.gov.in/catalogs  (search “village amenities”, “socio-economic”, download as CSV) Combine with GADM/IGISMAP village polygons for spatial joins",
+      "urls": [
+        "https://osm-boundaries.com/map",
+        "https://download.geofabrik.de/",
+        "https://gadm.org/download_country_v4.html",
+        "https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-1-states-provinces/",
+        "https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-boundary-lines/",
+        "https://www.openstreetmap.org",
+        "https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-rivers-lake-centerlines/",
+        "https://earthexplorer.usgs.gov/",
+        "https://dataspace.copernicus.eu/",
+        "https://developers.google.com/earth-engine/datasets/tags/landcover",
+        "https://worldcover2021.esa.int/",
+        "https://zenodo.org/records/7254221",
+        "https://daac.ornl.gov/VEGETATION/guides/Decadal_LULC_India.html",
+        "https://igismap.com/download-india-administrative-boundary-shapefiles-states-districts-sub-districts-pincodes-constituencies/",
+        "https://data.gov.in",
+        "https://censusindia.gov.in/census.website/data/census-tables",
+        "https://indiawris.gov.in/wiki/doku.php?id=river_basins",
+        "https://data.gov.in/catalogs"
+      ]
+    }
+  ],
+  "AIMLandDeep_Learning": [
+    {
+      "name": "India-specific Geospatial Datasets IndiaSat  Dataset (Pixel-level  landcover  classification) GitHub  repo with dataset and code",
+      "description": "https://github.com/ICTD-IITD/IndiaSAT Alternative:  https://github.com/ChahatBansal8060/IndiaSAT (Contains Landsat and Sentinel imagery with labelled  landcover  for India) NRSC  Bhuvan  Open EO Data (Satellite and Thematic Products) Open data archive landing page: https://bhuvan-app3.nrsc.gov.in/data/ Free satellite data download and products: https://bhuvan.nrsc.gov.in/wiki/index.php/Free_Satellite_Data_Download Thematic LULC Atlas of India: https://www.nrsc.gov.in/Atlas_LULC (Download satellite imagery, land use/land cover maps, water/forest/agriculture data) VEDAS (ISRO Space Applications Centre) Data Downloads Official download page: https://vedas.sac.gov.in/en/download.html (Wetlands, land cover, and thematic geospatial datasets focused on Indian region) Sen-2 LULC Dataset (Sentinel-2 based Land Use Land Cover for India) Mendeley  Data with 213,750+ images and masks for Indian central region: https://data.mendeley.com/datasets/f4ky6ks248/3 (7 classes including water, dense forest, agriculture, built-up) Pretrained  Model Weights for Transfer Learning DeepLabV3 with ResNet-50 Backbone ( PyTorch ) Torchvision  official  pretrained  weights download: Use  PyTorch   Torchvision  API or see docs: https://docs.pytorch.org/vision/main/models/generated/torchvision.models.segmentation.deeplabv3_resnet50.html (Official DeepLabV3-ResNet50 weights for segmentation) Segment Anything Model (SAM)  Pretrained  Weights Official SAM weights  GitHub  repo and direct links: https://github.com/facebookresearch/segment-anything Direct  wget  command for SAM- ViT -H weights: wget  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth (Models  ViT -B,  ViT -L,  ViT -H available) Other  Pretrained  Models for  DeepLab  or  ResNet Qualcomm DeepLabV3 weights ( HuggingFace ): https://huggingface.co/qualcomm/DeepLabV3-ResNet50 KerasHub   pretrained  weights collections: https://keras.io/keras_hub/presets/ (Supports  TensorFlow  usage)",
+      "urls": [
+        "https://github.com/ICTD-IITD/IndiaSAT",
+        "https://github.com/ChahatBansal8060/IndiaSAT",
+        "https://bhuvan-app3.nrsc.gov.in/data/",
+        "https://bhuvan.nrsc.gov.in/wiki/index.php/Free_Satellite_Data_Download",
+        "https://www.nrsc.gov.in/Atlas_LULC",
+        "https://vedas.sac.gov.in/en/download.html",
+        "https://data.mendeley.com/datasets/f4ky6ks248/3",
+        "https://docs.pytorch.org/vision/main/models/generated/torchvision.models.segmentation.deeplabv3_resnet50.html",
+        "https://github.com/facebookresearch/segment-anything",
+        "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth",
+        "https://huggingface.co/qualcomm/DeepLabV3-ResNet50",
+        "https://keras.io/keras_hub/presets/"
+      ]
+    }
+  ],
+  "NLP_and_Language": [
+    {
+      "name": "1. AI4Bharat  IndicNLP  Corpora Large-scale Indic language corpora suitable for OCR text and raw multilingual text. GitHub  Repository & Download",
+      "description": "https://github.com/AI4Bharat/indicnlp_corpus Website with various Indic NLP resources from AI4Bharat: https://indicnlp.ai4bharat.org/pages/indicnlp-corpus/ 2.  MILPaC : Multilingual Indian Legal Parallel Corpus High-quality legal text parallel corpora in English + 9 Indian languages. GitHub  Repository (includes download and usage info): https://github.com/Law-AI/MILPaC Hugging Face model for legal translation (optional for training/inference): https://huggingface.co/law-ai/InLegalTrans-En2Indic-1B 3. Hugging Face Indian Legal NER Datasets Annotated Named Entity Recognition datasets for Indian legal texts. Dataset Links: InLegalNER  dataset:  https://huggingface.co/datasets/opennyaiorg/InLegalNER SpaCy -compatible NER model:  https://huggingface.co/opennyaiorg/en_legal_ner_trf 4.  Anuvaad  Parallel Corpus (Legal + Administrative) Parallel corpora for Indic languages including legal, governance, official texts. GitHub  Repository for parallel corpus: https://github.com/project-anuvaad/anuvaad-parallel-corpus Anuvaad  Corpus Tools for crawling and building datasets: https://github.com/project-anuvaad/anuvaad-corpus-tools More info on the  Anuvaad  project: https://anuvaad.sunbird.org 5. OPUS Open Parallel Corpus (Indic-English subsets) Additional parallel corpora that can be used for cross-lingual alignment. Website to download OPUS corpora: https://opus.nlpl.eu/ 6. NLTK Corpora ( Stopwords , Gazetteers, Names lists) Built-in within NLTK Python package for  stopwords  and lexical resources for Hindi, English, and other Indian languages. NLTK official: https://www.nltk.org/nltk_data/",
+      "urls": [
+        "https://github.com/AI4Bharat/indicnlp_corpus",
+        "https://indicnlp.ai4bharat.org/pages/indicnlp-corpus/",
+        "https://github.com/Law-AI/MILPaC",
+        "https://huggingface.co/law-ai/InLegalTrans-En2Indic-1B",
+        "https://huggingface.co/datasets/opennyaiorg/InLegalNER",
+        "https://huggingface.co/opennyaiorg/en_legal_ner_trf",
+        "https://github.com/project-anuvaad/anuvaad-parallel-corpus",
+        "https://github.com/project-anuvaad/anuvaad-corpus-tools",
+        "https://anuvaad.sunbird.org",
+        "https://opus.nlpl.eu/",
+        "https://www.nltk.org/nltk_data/"
+      ]
+    }
+  ]
+}
