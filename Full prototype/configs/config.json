@@ -39,6 +39,105 @@
       "num_relations": 20
     }
   },
+  "llm_config": {
+    "primary_model": {
+      "name": "mistralai/Mistral-7B-Instruct-v0.1",
+      "max_tokens": 4096,
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "top_k": 40,
+      "repetition_penalty": 1.1,
+      "use_cache": true,
+      "device_map": "auto",
+      "load_in_8bit": true,
+      "torch_dtype": "float16"
+    },
+    "rag_config": {
+      "vector_db": "faiss",
+      "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+      "chunk_size": 512,
+      "chunk_overlap": 50,
+      "retrieval_k": 5,
+      "score_threshold": 0.7
+    },
+    "fine_tuning": {
+      "method": "lora",
+      "r": 16,
+      "lora_alpha": 32,
+      "lora_dropout": 0.1,
+      "target_modules": ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+      "learning_rate": 2e-4,
+      "num_epochs": 3,
+      "per_device_train_batch_size": 1,
+      "gradient_accumulation_steps": 8
+    },
+    "tasks": {
+      "document_qa": {
+        "enabled": true,
+        "system_prompt": "You are an expert FRA (Forest Rights Act) assistant. Answer questions based on the provided documents and context."
+      },
+      "spatial_query": {
+        "enabled": true,
+        "system_prompt": "You are a GIS expert specializing in FRA claims and forest rights. Convert natural language queries to PostGIS SQL."
+      },
+      "policy_analysis": {
+        "enabled": true,
+        "system_prompt": "You are a policy analyst expert in FRA implementation and CSS schemes. Provide recommendations based on data."
+      },
+      "ner_extraction": {
+        "enabled": true,
+        "system_prompt": "Extract named entities from FRA documents: village names, patta holders, coordinates, claim status, dates."
+      }
+    }
+  },
+  "ocr_config": {
+    "primary_engine": "layoutlmv3",
+    "fallback_engine": "tesseract",
+    "preprocessing": {
+      "denoise": true,
+      "contrast_enhancement": true,
+      "skew_correction": true,
+      "deskew_angle_threshold": 5
+    },
+    "postprocessing": {
+      "spell_check": true,
+      "entity_linking": true,
+      "confidence_threshold": 0.6
+    },
+    "languages": ["eng", "hin", "ben", "tel", "mar", "guj", "tam", "kan", "mal", "ori"],
+    "models": {
+      "document_layout": "microsoft/layoutlmv3-base",
+      "text_recognition": "microsoft/trocr-base-stage1",
+      "table_detection": "microsoft/table-transformer-structure-recognition"
+    }
+  },
+  "computer_vision": {
+    "satellite_analysis": {
+      "primary_model": "facebook/deeplabv3-resnet50-ade",
+      "land_cover_model": "qualcomm/DeepLabV3-ResNet50",
+      "change_detection_model": "nvidia/segformer-b0-finetuned-ade-512-512",
+      "asset_detection_model": "facebook/detr-resnet-50",
+      "foundation_model": "ibm-nasa-geospatial/Prithvi-100M"
+    },
+    "preprocessing": {
+      "cloud_masking": true,
+      "atmospheric_correction": true,
+      "radiometric_normalization": true,
+      "geometric_correction": true
+    },
+    "land_use_classes": {
+      "forest": 1,
+      "agriculture": 2,
+      "water": 3,
+      "built_up": 4,
+      "barren": 5,
+      "grassland": 6,
+      "wetland": 7,
+      "snow_ice": 8,
+      "other": 0
+    },
+    "indices": ["NDVI", "NDWI", "EVI", "SAVI", "NDBI", "BSI", "MNDWI", "GNDVI"]
+  },
   "training": {
     "learning_rate": 0.0001,
     "batch_size": 4,
@@ -229,16 +328,41 @@
     "other": 0
   },
   "model_sources": {
+    "primary_llm": "mistralai/Mistral-7B-Instruct-v0.1",
+    "secondary_llm": "meta-llama/Llama-2-7b-chat-hf",
+    "backup_llm": "tiiuae/falcon-7b-instruct",
     "layoutlm": "microsoft/layoutlmv3-base",
+    "layoutlm_large": "microsoft/layoutlmv3-large",
     "trocr": "microsoft/trocr-base-stage1",
-    "distilgpt2": "distilgpt2",
+    "trocr_large": "microsoft/trocr-large-stage1",
+    "ocr_ner": "ai4bharat/indic-bert",
+    "legal_ner": "opennyaiorg/en_legal_ner_trf",
+    "legal_translation": "law-ai/InLegalTrans-En2Indic-1B",
     "bert_base": "bert-base-uncased",
+    "bert_multilingual": "bert-base-multilingual-cased",
+    "indic_bert": "ai4bharat/indic-bert",
     "roberta_base": "roberta-base",
-    "detr": "facebook/detr-resnet-50",
+    "distilbert": "distilbert-base-uncased",
     "clip": "openai/clip-vit-base-patch32",
-    "resnet50": "microsoft/resnet-50",
+    "clip_large": "openai/clip-vit-large-patch14",
+    "detr": "facebook/detr-resnet-50",
+    "detr_panoptic": "facebook/detr-resnet-50-panoptic",
     "deeplabv3": "facebook/deeplabv3-resnet50-ade",
-    "swin_transformer": "microsoft/swin-base-patch4-window7-224"
+    "deeplabv3_satellite": "qualcomm/DeepLabV3-ResNet50",
+    "unet_satellite": "nvidia/segformer-b0-finetuned-ade-512-512",
+    "swin_transformer": "microsoft/swin-base-patch4-window7-224",
+    "swin_large": "microsoft/swin-large-patch4-window12-384",
+    "resnet50": "microsoft/resnet-50",
+    "resnet101": "microsoft/resnet-101",
+    "vit_base": "google/vit-base-patch16-224",
+    "vit_large": "google/vit-large-patch16-224",
+    "sam_model": "facebook/sam-vit-huge",
+    "segment_anything": "facebook/sam-vit-base",
+    "geospatial_fm": "ibm-nasa-geospatial/Prithvi-100M",
+    "satellite_foundation": "microsoft/torchgeo-resnet50-sentinel2-all",
+    "spacy_en": "en_core_web_sm",
+    "spacy_hindi": "hi_core_news_sm",
+    "spacy_multilingual": "xx_ent_wiki_sm"
   },
   "data_sources": {
     "fra_datasets": {
