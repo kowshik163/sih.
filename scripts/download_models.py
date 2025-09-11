@@ -177,7 +177,7 @@ def main():
     parser.add_argument('--force', action='store_true',
                        help='Force re-download even if cached')
     parser.add_argument('--dry-run', action='store_true',
-                       help='Show what would be downloaded without downloading')
+3                       help='Show what would be downloaded without downloading')
     parser.add_argument('--check-space', action='store_true',
                        help='Check available disk space before downloading')
     

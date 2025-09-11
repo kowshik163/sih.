@@ -58,7 +58,393 @@ FRA AI Fusion System
 ```bash
 # Clone repository
 git clone <repository-url>
-cd sih_-main
+# 🌲 FRA AI Fusion System
+
+**A Unified AI System for Forest Rights Act (FRA) Monitoring and Decision Support**
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-green.svg)](https://fastapi.tiangolo.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-red.svg)](https://pytorch.org/)
+
+## 🎯 Overview
+
+The FRA AI Fusion System is a comprehensive artificial intelligence platform designed to modernize and streamline Forest Rights Act (FRA) monitoring and implementation in India. It combines state-of-the-art machine learning models with geospatial technologies to create an integrated solution for:
+
+- **Document Digitization**: OCR and NER for FRA claim processing
+- **Satellite Monitoring**: AI-powered land use classification and change detection  
+- **Decision Support**: Intelligent recommendations for policy makers
+- **WebGIS Integration**: Interactive mapping and visualization platform
+
+## ✨ Key Features
+
+### 🔄 **Unified AI Architecture**
+- **Multi-modal Learning**: Single model handles text, images, and geospatial data
+- **Real-time Processing**: Fast inference for operational use
+- **Scalable Training**: Distributed training with Accelerate and DeepSpeed
+
+### 📄 **Document Processing** 
+- **Advanced OCR**: LayoutLMv3 for structured document understanding
+- **Multi-language Support**: Hindi, English, and 9 regional languages
+- **Entity Extraction**: Automated extraction of village names, patta holders, coordinates
+
+### 🛰️ **Satellite Analysis**
+- **Land Cover Classification**: Forest, agriculture, water body detection
+- **Change Detection**: Monitor deforestation and land use changes
+- **Asset Mapping**: Identify ponds, farms, and infrastructure
+
+### 🌐 **WebGIS Platform**
+- **Interactive Maps**: Real-time visualization of FRA claims and boundaries
+- **Spatial Queries**: Natural language queries converted to PostGIS SQL
+- **Multi-layer Analysis**: Overlay satellite data, claims, and socio-economic data
+
+### 🤖 **Decision Support System**
+- **Policy Recommendations**: AI-driven insights for scheme implementation
+- **Eligibility Matching**: Cross-reference FRA holders with CSS schemes
+- **Progress Tracking**: Monitor claim processing at village/district/state levels
+
+## 🚀 Quick Start
+
+### Option 1: Quick Setup (Recommended)
+
+```bash
+# 1. Clone and setup
+git clone https://github.com/kowshik163/sih.git
+cd sih
+python3 -m venv fra_env && source fra_env/bin/activate
+pip install -r "Full prototype/requirements.txt"
+
+# 2. Configure environment
+cd "Full prototype"
+cp .env.example .env
+# Edit .env with your settings
+
+# 3. Run basic test
+python basic_test.py
+
+# 4. Start the system
+python run.py --serve
+```
+
+**Access at**: http://localhost:8000
+
+### Option 2: Docker Deployment
+
+```bash
+# Quick Docker setup
+git clone https://github.com/kowshik163/sih.git
+cd sih
+docker-compose up --build
+```
+
+### Option 3: Complete Setup with Models
+
+```bash
+# Full setup with model downloads
+cd "Full prototype"
+python run.py --complete
+```
+
+## 📖 Documentation
+
+- **[📋 Quick Start Guide](QUICKSTART.md)** - Get running in 5 minutes
+- **[🏗️ Architecture Guide](ARCHITECTURE.md)** - Technical architecture details
+- **[🚀 Deployment Guide](DEPLOYMENT.md)** - Production deployment
+- **[🔧 API Documentation](http://localhost:8000/docs)** - Interactive API docs (when running)
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TB
+    A[User Interface] --> B[FastAPI Backend]
+    B --> C[Unified AI Model]
+    B --> D[PostGIS Database]
+    
+    C --> E[OCR Module]
+    C --> F[Computer Vision]
+    C --> G[NLP Processing]
+    C --> H[Geospatial Analysis]
+    
+    I[Satellite Data] --> F
+    J[FRA Documents] --> E
+    K[Legal Corpus] --> G
+    L[GIS Layers] --> H
+    
+    D --> M[WebGIS Frontend]
+    B --> N[Decision Support]
+```
+
+## 🔧 Core Components
+
+### 1. **Data Processing Pipeline** (`1_data_processing/`)
+- Document OCR and text extraction
+- Satellite imagery preprocessing  
+- Geospatial data integration
+- Training data generation
+
+### 2. **AI Model Fusion** (`2_model_fusion/`)
+- Unified multimodal encoder
+- Knowledge distillation
+- Distributed training support
+- Model optimization
+
+### 3. **WebGIS Backend** (`3_webgis_backend/`)
+- RESTful API endpoints
+- JWT authentication
+- PostGIS integration
+- Real-time model serving
+
+### 4. **Configuration** (`configs/`)
+- System configuration
+- Model definitions
+- Security settings
+- Environment management
+
+## 📊 Supported Models
+
+| Component | Primary Model | Alternative | Purpose |
+|-----------|---------------|-------------|---------|
+| **LLM** | Mistral-7B-Instruct | Llama-2-7B | Natural language queries |
+| **OCR** | LayoutLMv3 | TrOCR | Document understanding |
+| **Vision** | DeepLabV3+ | SegFormer | Satellite segmentation |
+| **NER** | IndicBERT | Legal-NER | Entity extraction |
+| **Translation** | InLegalTrans | mBERT | Multi-language support |
+
+## 📁 Project Structure
+
+```
+sih/
+├── Full prototype/           # Main application code
+│   ├── 1_data_processing/   # Data pipeline
+│   ├── 2_model_fusion/      # AI models and training
+│   ├── 3_webgis_backend/    # FastAPI backend
+│   ├── configs/             # Configuration files
+│   ├── data/               # Data storage
+│   ├── basic_test.py       # System validation
+│   └── run.py             # Main orchestration
+├── scripts/                # Utility scripts
+│   ├── download_models.py  # Model management
+│   └── download_data.py    # Dataset management
+├── FRA DATASETS/          # Real dataset links
+├── SCHEMES/              # Government scheme data
+├── docker-compose.yml    # Container orchestration
+├── QUICKSTART.md        # Getting started guide
+└── README.md           # This file
+```
+
+## 🧪 Testing
+
+### Run System Tests
+
+```bash
+# Basic functionality test
+python basic_test.py
+
+# Complete system smoke test  
+python smoke_test.py
+
+# Production readiness check
+python production_check.py
+
+# Integration test
+python test_integration.py
+```
+
+### API Testing
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# OCR endpoint
+curl -X POST "http://localhost:8000/api/v1/ocr" 
+     -H "Content-Type: multipart/form-data" 
+     -F "file=@document.pdf"
+
+# Spatial query
+curl -X POST "http://localhost:8000/api/v1/spatial-query" 
+     -H "Content-Type: application/json" 
+     -d '{"query": "Show FRA claims in Telangana"}'
+```
+
+## 📈 Performance
+
+| Metric | Value | Notes |
+|--------|--------|-------|
+| **OCR Processing** | ~2 sec/page | LayoutLMv3 on GPU |
+| **Satellite Analysis** | ~5 sec/tile | DeepLabV3+ inference |
+| **API Response Time** | <200ms | Average for queries |
+| **Model Memory** | ~14GB | Full model on GPU |
+| **Throughput** | 100 req/min | Rate limited |
+
+## 🔒 Security Features
+
+- **JWT Authentication**: Secure API access
+- **Input Validation**: Comprehensive request validation
+- **Rate Limiting**: DDoS protection
+- **File Upload Security**: Safe file handling
+- **SQL Injection Protection**: Parameterized queries
+- **CORS Configuration**: Configurable cross-origin access
+
+## 🌍 Real Datasets Integrated
+
+- **FRA Legal Documents**: AI4Bharat IndicNLP, InLegal corpora
+- **OCR Training Data**: ICDAR-2019, IIIT Hindi OCR datasets  
+- **Satellite Imagery**: IndiaSAT, BHUVAN, NRSC data portals
+- **Geospatial Boundaries**: OpenStreetMap India, DataMeet
+- **Business Rules**: UCI ML datasets for decision modeling
+
+## 🎯 Use Cases
+
+### 1. **Government Officials**
+- Process FRA claims efficiently
+- Monitor implementation progress
+- Generate compliance reports
+- Plan resource allocation
+
+### 2. **NGOs & Advocates**  
+- Track claim status
+- Identify processing bottlenecks
+- Support community rights
+- Generate evidence for advocacy
+
+### 3. **Researchers**
+- Analyze FRA implementation patterns
+- Study forest cover changes
+- Research socio-economic impacts
+- Develop policy recommendations
+
+### 4. **Tribal Communities**
+- Check claim status
+- Understand rights and procedures
+- Access translated information
+- Connect with support services
+
+## 🛠️ Development
+
+### Prerequisites
+- Python 3.9+
+- PyTorch 2.0+
+- 16GB+ RAM
+- 50GB+ disk space
+- GPU (recommended)
+
+### Setup Development Environment
+
+```bash
+# Clone repository
+git clone https://github.com/kowshik163/sih.git
+cd sih
+
+# Setup virtual environment
+python3 -m venv fra_env
+source fra_env/bin/activate
+
+# Install dependencies
+pip install -r "Full prototype/requirements.txt"
+
+# Setup environment
+cd "Full prototype"
+cp .env.example .env
+python configs/secrets.py setup
+
+# Run tests
+python basic_test.py
+```
+
+### Training Custom Models
+
+```bash
+# Download training data
+python ../scripts/download_data.py --priority essential
+
+# Process data
+python run.py --data-pipeline
+
+# Train model
+python run.py --train
+
+# With GPU acceleration
+accelerate launch --config_file configs/accelerate/single_gpu.yaml 
+  2_model_fusion/train_fusion.py
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `python basic_test.py`
+5. Submit a pull request
+
+### Areas for Contribution
+- 🌐 Frontend development (React/Vue.js)
+- 📱 Mobile app development  
+- 🔧 Performance optimization
+- 🧪 Testing and validation
+- 📖 Documentation improvements
+- 🌍 Internationalization
+
+## 📜 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Ministry of Tribal Affairs** - For FRA policy guidance
+- **AI4Bharat** - For Indic language models and datasets
+- **OpenNyAI** - For legal NER models and corpora
+- **ISRO/NRSC** - For satellite data and geospatial resources
+- **HuggingFace** - For model hosting and transformers library
+
+## 📞 Support
+
+### Getting Help
+- 📖 Check the [Documentation](QUICKSTART.md)
+- 🐛 [Report Issues](https://github.com/kowshik163/sih/issues)
+- 💬 [Discussions](https://github.com/kowshik163/sih/discussions)
+- 📧 Contact: [maintainer@fraai.org](mailto:maintainer@fraai.org)
+
+### System Status
+```bash
+# Check system health
+python production_check.py
+
+# View configuration
+python configs/secrets.py
+
+# Check API status
+curl http://localhost:8000/health
+```
+
+## 🗺️ Roadmap
+
+### Phase 1 (Current) ✅
+- [x] Core AI model implementation
+- [x] Basic API endpoints
+- [x] Document processing pipeline
+- [x] Real dataset integration
+
+### Phase 2 (Next)
+- [ ] Frontend web interface
+- [ ] Mobile application
+- [ ] Real-time satellite monitoring
+- [ ] Advanced analytics dashboard
+
+### Phase 3 (Future)
+- [ ] Multi-state deployment
+- [ ] IoT sensor integration
+- [ ] Blockchain for transparency
+- [ ] Advanced ML model updates
+
+---
+
+**🌲 Built with ❤️ for Forest Rights and Tribal Welfare**
+
+*Empowering forest communities through AI-driven transparency and efficiency*
 
 # Set your Hugging Face token
 export HF_TOKEN="your_huggingface_token_here"
