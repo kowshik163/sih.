@@ -1,279 +1,202 @@
-Nice — this is a great, concrete system. Below I give a single, optimized end-to-end plan: exact *merge order, the **training & fusion strategy* you should use to build a single AI that does the tools (not only orchestrates them), the *“encoding layer” design* (the unified multimodal representation), training losses and recipes, infra & deployment notes, and practical evaluation/monitoring. I assume you want a pragmatic, production-ready path that balances openness (Mistral / LLaMA family) with efficiency and real-world constraints.
+This report provides a comprehensive guide to running the FRA AI Fusion System, detailing the process from setup to deployment. The analysis is based on the provided source code, documentation, and configuration files.
 
----
+1. How to Run the System
+There are three primary ways to run the system, catering to different needs from a quick demonstration to a full production-like setup.
 
-# 1) High-level recommended merge/order (priority)
+Option 1: Quick Start with the Automated Runner (Recommended)
+This method uses the main orchestration script run.py to handle all steps automatically.
 
-Merge pieces in this order — each build stage provides data, labels, or capabilities required by the next:
+Prerequisites:
 
-1. *Digitization & NER* (OCR → Layout → token/class labels)
+Python 3.8+
 
-   * Why first: it produces structured FRA claims, canonical IDs, training labels, and large text corpora needed to fine-tune language models and to bootstrap downstream mapping/DSS.
-2. *Geospatial segmentation & land-cover models* (satellite → segmentation masks + indices)
+Git
 
-   * Why next: yields labeled raster/vector layers (homesteads, agriculture, forest, water) that will populate the GIS and provide paired image↔metadata examples for multimodal fusion.
-3. *Database & WebGIS stack* (PostGIS + GeoServer + frontend)
+Around 50GB of free disk space for models and datasets.
 
-   * Why now: you need a standardized schema and endpoints (PostGIS, vector tiles, WMS/WFS) to surface results, instrumenting the system and producing query logs that become training data for LLM→SQL and action policies.
-4. *LLM tool-fusion (text ↔ geo ↔ CV)* — build the unified encoder & fine-tune for multimodal tasks (see §3).
+An NVIDIA GPU is recommended for training.
 
-   * Merge textual NER model + visual segmentation model + vector DB (embeddings) into one model stack via adapters/heads.
-5. *LLM → PostGIS / GeoServer tool skills* (SQL generation, vector tile queries, layer composition)
+Setup Environment:
 
-   * Fine-tune for structured-output generation (SQL/PostGIS, GeoJSON), with execution feedback loop (tool-use RL / supervised correction).
-6. *DSS & policy fusion* (rule engine + AI recommendations)
+Clone the repository: git clone <repository-url>
 
-   * Attach rulesets and train the LLM to propose interventions using the unified embeddings and external indices.
-7. *Distillation & unification* — compress into final deployable student model (adapter merge / distillation) and apply quantization/optimization.
+Navigate to the project directory: cd sih
 
----
+Create and activate a Python virtual environment:
 
-# 2) Overall architecture (components & responsibilities)
+Bash
 
-* *Input modules*
+python3 -m venv fra_env
+source fra_env/bin/activate
+Install dependencies from Full prototype/requirements.txt.
 
-  * Tesseract OCR → raw text + confidence.
-  * LayoutLMv3 (or LayoutLM-like encoder) → structured token embeddings preserving layout.
-  * Satellite encoder (CNN/ViT) → multi-scale raster embeddings.
-  * Spectral index extractor (NDVI, NDWI, EVI, band ratios).
-* *Unified Multimodal Encoder / Encoding Layer* (the core)
+Configure Environment Variables:
 
-  * Purpose: convert any input (layout text, raw text, image patch, mask, numeric indices, geocoordinates, DB rows) into a common vector embedding space.
-  * Implementation: separate modality encoders + *modality adapter heads* → projection into a shared embedding (e.g., 1024 dims).
-* *Task heads* (lightweight, task-specific)
+Navigate to the Full prototype directory: cd "Full prototype"
 
-  * NER / token classification head (for FRA fields).
-  * Segmentation head (for landcover masks).
-  * Retriever & vector store (ANN; Faiss / Milvus) for RAG and geographic retrieval.
-  * SQL/GeoJSON generation head (constrained decoder).
-  * Recommendation / DSS head (policy scoring + action text).
-* *Tool / Action Layer*
+Copy the example environment file: cp .env.example .env
 
-  * Connectors to PostGIS, GeoServer, Leaflet (tile/feature APIs), and rule engine.
-  * Expose an API spec that the LLM can call (tool-call interface) during training and inference.
-* *Controller & Orchestrator*
+Edit the .env file to add your Hugging Face token and any other necessary configurations:
 
-  * Loggers for input/output, execution traces, human corrections.
-  * Ground-truth feedback loop for supervised + RL.
+Code snippet
 
----
+HF_TOKEN="your_huggingface_token_here"
+Run the Complete Pipeline:
 
-# 3) Encoding layer design — unified multimodal embedding
+From the Full prototype directory, execute the following command:
 
-Goal: a *geospatially-aware, modality-agnostic vector* you can use for retrieval, clustering, downstream prediction and policy.
+Bash
 
-Design pattern:
+python run.py --complete
+This single command will trigger the entire process: setup, model/data downloads, data processing, model training, and finally, it will start the API server.
 
-1. *Modality encoders (frozen or adaptive)*
+Option 2: Docker Deployment
+For a containerized and isolated environment, you can use Docker.
 
-   * Text: LayoutLMv3 → token embeddings → pooling (CLS or attentive pooling).
-   * OCR-corrected text: small Transformer (Mistral-7B-Instruct backbone) for context-aware embeddings.
-   * Image: ViT or ResNet-based encoder pretrained on remote sensing (TorchGeo / DeepLab backbone) → patch-level embeddings.
-   * Numeric/structured features (NDVI, altitude, distance to road): a tiny MLP projecting to same dim.
-   * Coordinates: Sine/cos positional encoding of lat/lon + MLP (to capture locality).
-2. *Projection & alignment*
+Prerequisites:
 
-   * Project each modality to a *shared latent (e.g., 1024-d)* space with learned linear layers + LayerNorm.
-   * Add *modality token* and *context token* embeddings (so downstream heads know the origin).
-3. *Contrastive & cross-modal losses for alignment*
+Docker and Docker Compose installed.
 
-   * InfoNCE / contrastive loss: pair text (FRA claim) with satellite snapshot of same geobox; positive = correct match, negatives = random spatial/time neighbors.
-   * Cross-modal reconstruction: predict segmentation mask from text embedding and vice versa (auxiliary).
-4. *Geospatial smoothing*
+Build and Run:
 
-   * Add a locality loss: embeddings of nearby coordinates should be closer than far ones (weighted by administrative boundaries).
-5. *Downstream heads plug-in*
+From the root sih directory, run:
 
-   * Heads receive shared embedding + small task-specific context tokens.
+Bash
 
-Why this works: you get a single representation that encodes document semantics, layout cues, imagery context, and geolocation — enabling the LLM to reason about "which villages have overlapping claims and forest cover" without querying every tool separately.
+docker-compose up --build
+This will build the Docker image as defined in the Dockerfile and start all services, including the main application, Redis, and PostgreSQL, as configured in docker-compose.yml.
 
----
+Option 3: Single-File Executable
+The fra_ai_complete_system.py script is a self-contained solution that handles everything from dependency installation to serving the API.
 
-# 4) Training strategy — multi-stage, multitask, curriculum
+Navigate to the directory:
 
-Stage A — *Foundations (supervised)*
+Bash
 
-* Tasks:
+cd "sih_-main/Full prototype"
+Run the complete pipeline:
 
-  * OCR correction: train a seq2seq model using OCR output → gold text.
-  * NER: token-classification fine-tune with LayoutLMv3 / HF token-classifier head (labels: village, patta holder, coordinates, claim status).
-  * Segmentation: train DeepLabV3+/U-Net on remote sensing masks (labels: forest, agriculture, water, homestead).
-* Data:
+Bash
 
-  * Annotated FRA forms (text + bounding boxes).
-  * Satellite tile masks + indices (Sentinel-2, Landsat).
-* Methods:
+python fra_ai_complete_system.py --action all
+This will:
 
-  * Fine-tune baseline models; use PEFT (LoRA / Adapters) on Mistral or LLaMA for NER to keep compute reasonable.
+Auto-install all dependencies.
 
-Stage B — *Cross-modal alignment (contrastive + reconstruction)*
+Download all AI models and datasets.
 
-* Tasks:
+Fine-tune the models.
 
-  * Text ↔ image contrastive learning (paired FRA claim — village tile).
-  * Mask prediction from text embedding, text generation from image embedding (lightweight teacher forcing).
-* Methods:
+Perform knowledge distillation.
 
-  * Use a batch of positives/negatives; InfoNCE with hard negatives (nearby tiles).
+Set up a SQLite database with sample data.
 
-Stage C — *Tool skill training (supervised & executed feedback)*
+Start the production API server on http://localhost:8000.
 
-* Tasks:
+2. The Automated Process: What Happens When You Run --complete
+When you execute python run.py --complete, a series of automated steps are performed in a specific order to set up, train, and deploy the system.
 
-  * SQL/PostGIS generation from NL prompts (paired logs: natural instruction → SQL).
-  * GeoJSON generation from “draw polygon X around claims”.
-  * API-call format generation (LLM emits structured tool calls).
-* Methods:
+Environment Setup: The script first initializes the environment by creating necessary directories for data, models, logs, and outputs (data/raw, data/processed, models, logs, outputs). It also installs all Python packages listed in requirements.txt.
 
-  * Supervised fine-tuning on curated instruction-SQL pairs.
-  * *Execution feedback loop*: run generated SQL against PostGIS; if returned result wrong, produce correction examples and add to dataset.
-  * Reward modeling: human/crowd corrections to teach preferred outputs.
+Model and Data Download: The system then proceeds to download all required AI models and datasets. This is orchestrated by scripts/download_models.py and scripts/download_data.py, which read the model_sources and data_sources from configs/config.json.
 
-Stage D — *DSS & policy training (hybrid)*
+Data Processing: Once the raw data is downloaded, the 1_data_processing/data_pipeline.py script is executed. This pipeline performs several tasks:
 
-* Tasks:
+OCR and Text Extraction: Scanned FRA documents are processed to extract raw text.
 
-  * Given claim + geodata + socio indices → recommend interventions, prioritize villages.
-* Methods:
+Satellite Imagery Preprocessing: Satellite images are prepared for analysis.
 
-  * Multi-objective fine-tuning: cross-entropy for textual correctness, pairwise ranking loss for prioritization lists.
-  * Use rule engine outputs as strong supervision + human-labeled interventions for ambiguous cases.
+Geospatial Data Integration: GIS layers and other spatial data are integrated.
 
-Stage E — *Distillation & compression*
+Training Data Generation: The processed data is transformed into a structured format suitable for training the AI models and saved as training_data.json.
 
-* Distill teacher ensemble (LLaMA-3, Mistral-7B, Falcon-7B) into single Mistral-based student via synthetic Q\&A generation + adapter merging. Use adapter fusion or merge LoRA weights into a single model for inference. Apply quantization (8-bit, 4-bit int8/4) and test accuracy drop.
+Model Training: With the processed data ready, the training pipeline, defined in 2_model_fusion/train_fusion.py, is initiated. This is a multi-stage process designed to build a powerful, unified model.
 
-Training tips:
+Knowledge Distillation: After the main model is trained, a smaller, more efficient version is created through knowledge distillation, as detailed in 2_model_fusion/distillation.py.
 
-* Use PEFT (LoRA/Adapters) for LLMs; full fine-tune only if you have very large compute.
-* Curriculum: start with high-precision tasks (NER, segmentation) → alignment → tool-use.
-* Heavy use of synthetic augmentation: generate synthetic FRA forms and satellite perturbations for robust models.
+API Server Launch: Finally, the script starts the FastAPI web server, defined in 3_webgis_backend/api.py. The server exposes several endpoints for interacting with the trained models, processing documents, and accessing geospatial data.
 
----
+3. Models and Datasets to be Downloaded
+The system is configured to download a comprehensive set of models and datasets to cover all its functionalities. The exact list is defined in configs/config.json.
 
-# 5) Specific merging strategies (models & tools)
+Models Download Order
+The models are downloaded based on a priority system (essential, standard, advanced) defined in scripts/download_models.py. The essential models are downloaded first.
 
-* *Model-level merges*
+Essential Models (Downloaded First):
 
-  * Keep *Mistral-7B-Instruct* as the main deployable backbone. Fine-tune adapters for:
+LLM: mistralai/Mistral-7B-Instruct-v0.1 (Primary LLM for NLP tasks)
 
-    * NER & document reasoning (Layout adapter).
-    * SQL generation (structured-output adapter).
-    * DSS policy module (policy adapter).
-  * Use *LLaMA-3-8B / Falcon* as teachers (do not mix licenses without review): generate synthetic Q/A to distill improved reasoning into Mistral.
-  * Use *AdapterFusion* to combine specialized adapters during inference (so one core model can "activate" document, geospatial, or policy skills).
-* *Cross-modal fusion*
+OCR/Layout: microsoft/layoutlmv3-base and microsoft/trocr-base-stage1 (For document understanding and text extraction)
 
-  * Keep image/text encoders separate but aligned via the shared projection layer (no monolithic multimodal single backbone unless you have huge compute).
-  * Use a small multimodal transformer (few layers) that takes concatenated modality projections for tight reasoning on complex tasks.
-* *Tool fusion*
+Vision: facebook/deeplabv3-resnet50-ade (For satellite image segmentation), facebook/detr-resnet-50 (For object detection), and openai/clip-vit-base-patch32 (For vision-language tasks)
 
-  * Train the LLM to produce *structured tool call tokens* (e.g., CALL_SQL(...), CALL_GEOSERVER_TILES(...)) and simulate execution during training (supervised execution traces).
-  * Create an *execution emulator* during training that returns realistic outputs so the model learns to interpret tool responses.
+NER: ai4bharat/indic-bert and opennyaiorg/en_legal_ner_trf (For named entity recognition in Indian languages and legal text)
 
----
+Other Models (Standard and Advanced): The system will also download larger and more specialized models like Llama-2-7b-chat-hf, falcon-7b-instruct, layoutlmv3-large, trocr-large, sam-vit-huge (Segment Anything Model), and the ibm-nasa-geospatial/Prithvi-100M foundation model.
 
-# 6) Losses & multi-task objective
+Datasets to be Downloaded
+The scripts/download_data.py script downloads datasets from various sources as specified in the configuration.
 
-* *Total Loss =* α L\_NER + β L\_OCR + γ L\_Seg + δ L\_Contrastive + ε L\_SQL + ζ L\_PolicyRank
+FRA and Legal Datasets:
 
-  * Start with strong weights on L\_NER and L\_Seg (foundational). Gradually increase L\_Contrastive and L\_SQL during alignment phases.
-* Use *curriculum weighting*: slowly increase contrastive and policy losses as dataset size for those increases.
-* Regularization: dropout, label smoothing, and adversarial augmentation for robustness.
+AI4Bharat IndicNLP Corpus: For large-scale Indic language text.
 
----
+InLegalNER: Annotated NER datasets for Indian legal texts from Hugging Face.
 
-# 7) Data engineering & logging (critical)
+OCR Datasets:
 
-* Canonical identifiers: unify village IDs, patta holder IDs, cadastral IDs, event timestamps.
-* Version everything: schemas for raster tiles, claims, masks, and model checkpoints.
-* Log each tool call (input prompt, model output, tool response, human correction).
-* Maintain an *example bank* of failure modes to fine-tune iteratively.
+ICDAR 2019 MLT: For multilingual text detection and recognition.
 
----
+IIIT Hindi OCR: Hindi OCR datasets from IIIT Hyderabad.
 
-# 8) Evaluation & QA
+Satellite Imagery:
 
-* *Core metrics*
+IndiaSAT Dataset: Indian satellite imagery for land cover classification.
 
-  * NER: F1 per entity (village, patta holder, coordinates, status).
-  * OCR: CER/WER.
-  * Segmentation: mIoU per class (forest, agri, water, homestead).
-  * SQL gen: exact match + execution accuracy (does the query run and return correct features).
-  * DSS: NDCG / ranking accuracy against human-prioritized list.
-  * End-to-end: human evaluation on a held-out set — does suggested intervention match expert panel?
-* *Safety & correctness*
+BHUVAN Free Data: Satellite data from NRSC India.
 
-  * Sanity checks for generated polygons (no overlaps with impossible areas).
-  * PostGIS constraints and schema validation.
-* *A/B tests* on prioritized villages: compare human-only decisions vs. model suggestions in pilot.
+Geospatial Boundaries:
 
----
+OpenStreetMap India: Administrative boundaries and other map data.
 
-# 9) Deployment & infra notes
+DataMeet Boundaries: Indian administrative boundary shapefiles.
 
-* *Model infra*
+4. Fine-Tuning, Merging, and Training Process
+The core of this system is its sophisticated, multi-stage training pipeline that creates a single, unified AI model capable of handling diverse tasks. The process is detailed in stepbystepprocess.md and implemented in train_fusion.py.
 
-  * Serve Mistral student model via Triton / LangServe / Ollama depending on stack. Use quantized weights (4-bit or 8-bit) for cost reduction.
-  * Use GPU hosts for heavy inference & CPU fallback for low-latency tasks.
-* *Vector store*: Faiss or Milvus for geospatial embedding retrieval; ensure spatial indexing is used (tile-based).
-* *API / Tool connector*:
+Fine-Tuning and Merging Order
+Digitization & NER (Foundation First): The process starts by fine-tuning models for Optical Character Recognition (OCR) and Named Entity Recognition (NER). A LayoutLM-style model is fine-tuned on annotated FRA forms to extract structured information like village names, patta holders, and coordinates. This is done first because it produces the structured text and labels needed for all subsequent stages.
 
-  * Wrap PostGIS, GeoServer endpoints as typed tool APIs the model calls.
-  * Use an execution sandbox for SQL to prevent destructive queries (read-only or limited write with approval).
-* *Frontend*: Leaflet + GeoServer vector tiles, integrate model suggestions as “layers” with provenance and confidence scores.
-* *Monitoring*: model drift, accuracy decay, high-confidence false positives — use automation to flag retraining.
+Geospatial Segmentation: Concurrently, computer vision models like DeepLabV3+ or U-Net are trained on satellite imagery to identify and segment land cover types (forests, agriculture, water bodies). This creates the foundational geospatial layers for the system.
 
----
+Cross-Modal Alignment: This is a crucial step where the textual and visual models are aligned. A contrastive learning approach is used, where the model learns to associate the text from an FRA claim with the corresponding satellite image of the claimed area. This creates a unified embedding space where text and images with similar meanings are close to each other.
 
-# 10) Privacy, legal & governance
+LLM Tool Skills: The primary LLM (Mistral-7B) is then fine-tuned to interact with the geospatial database (PostGIS). It learns to generate SQL queries from natural language questions (e.g., "Show all pending claims in Odisha"). This is achieved through supervised fine-tuning on pairs of natural language questions and their corresponding SQL queries.
 
-* FRA data is extremely sensitive. Ensure:
+DSS and Policy Fusion: In the final stage, the model is trained to provide Decision Support System (DSS) capabilities. It learns to recommend government schemes by correlating the data from FRA claims and satellite analysis with the eligibility criteria of schemes like PM-KISAN and Jal Jeevan Mission.
 
-  * Encryption at rest/in transit.
-  * Role-based access (who can view PII).
-  * Audit trail for any model-suggested action that affects land rights.
-  * Human-in-the-loop for any action that changes database state (no fully automated patta grants).
-* Keep clear provenance: show which model, which adapter, and which data led to any recommendation.
+Training Process
+Training begins after the data processing pipeline has created the training_data.json file. The training is divided into five stages, as defined in configs/config.json and executed by train_fusion.py:
 
----
+Stage 0 - Multimodal Pretraining (15 epochs): This is the initial and most critical stage where the model learns to create a unified representation of text, images, and geospatial data. It uses contrastive learning and other self-supervised objectives to align the different modalities.
 
-# 11) Practical roadmap & milestones (90–120 day plan, condensed)
+Stage 1 - Foundation Training (10 epochs): The model is fine-tuned on specific tasks like NER and land cover classification using the labeled data.
 
-1. *Weeks 0–3:* Collect + standardize data; set up PostGIS & GeoServer; annotate initial FRA forms and satellite tiles.
-2. *Weeks 4–8:* Train OCR pipeline + LayoutLMv3 NER; train segmentation baseline (U-Net). Produce first structured DB.
-3. *Weeks 9–12:* Build unified projection layer; train contrastive alignment on text-image pairs; instrument logs and tool stubs.
-4. *Weeks 13–16:* Fine-tune LLM adapters for SQL generation and tool-call format; supervised execution feedback loop.
-5. *Weeks 17–20:* DSS adapter + policy ranking training; run pilot on a sample district with human eval.
-6. *Weeks 21–24:* Distill & compress student; deploy WebGIS with model-backed “suggestions” layer; full monitoring.
+Stage 2 - Alignment Training (8 epochs): The model's outputs are further refined to align with human preferences and expectations.
 
-(If compute or data limited, extend timeline but keep the staged approach.)
+Stage 3 - Tool Skills (5 epochs): The model is trained to generate SQL queries and interact with other tools.
 
----
+Stage 4 - DSS Fine-tuning (5 epochs): The model is specialized for decision support tasks, learning to make accurate and relevant recommendations.
 
-# 12) Quick checklist (what to merge first & why)
+5. Knowledge Distillation
+After the large, multi-stage training is complete, the system performs knowledge distillation to create a smaller, faster, and more efficient model suitable for deployment.
 
-* *Start merging*: OCR + LayoutLM outputs → NER adapter into Mistral. (gives structured data; cheap wins)
-* *Next*: Satellite segmentation embeddings → align with document embeddings (contrastive). (creates multimodal pairs)
-* *Then*: Build tool-call skillset (SQL/GeoJSON) and train on PostGIS logs. (teaches the model to act on the DB)
-* *Finally*: Merge DSS knowledge (policy adapters) and distill full-stack behavior into one student model (adapter fusion + distillation).
+When and How: Distillation is the final step after the main training pipeline is complete. The process is handled by 2_model_fusion/distillation.py. It uses a teacher-student approach where the large, fully-trained model (the "teacher") is used to train a smaller model (the "student").
 
----
+Models Involved:
 
-# 13) Practical model tuning knobs & tips
+Teacher Model: The final_model.pth produced by the multi-stage training pipeline. This is a powerful but large model.
 
-* Use *LoRA/Adapters* on Mistral to keep iterations fast. Merge adapters into a single set before production.
-* Use *hard negatives* for contrastive training (nearby village tiles) for real geospatial discrimination.
-* For SQL generation, prefer *constrained decoding* (grammar / SQL AST sampling) to avoid dangerous queries.
-* For segmentation, prefer *ensemble (DeepLab + U-Net)* in production for robustness, but distill later.
+Student Model: A smaller version of the same architecture. The configuration for the student model is created by reducing the hidden size and other parameters of the teacher model. For instance, Mistral-7B-Instruct could be distilled from a larger teacher model like Llama-3-8B-Instruct.
 
----
-
-# 14) Failure modes & mitigations
-
-* *Model hallucination* (e.g., claims that don’t exist): mitigate by forcing verification via PostGIS execution and returning confidence.
-* *Misaligned embeddings* (text sees image as unrelated): increase contrastive curriculum and add locality loss.
-* *Privacy breaches*: use redaction & masked training for PII.
-
----
+The distillation process involves using a special loss function (DistillationLoss) that encourages the student model to mimic the outputs of the teacher model. This allows the smaller student model to learn the complex patterns captured by the larger teacher, resulting in a compact yet powerful model for production use.
